@@ -1,0 +1,614 @@
+<!doctype html>
+<html>
+
+<head>
+   <meta charset=utf-8>
+   <title>JavaScript</title>
+	<link rel="stylesheet" href="lab3.css">
+   
+</head>
+
+<body>
+  <div class="container">
+   <div id="firstTask">
+         <label for="operand1" id="op1label">a = </label>
+         <input type="text" id="operand1" size="10">
+         <select id="operator">
+            <option value="+" selected="selected">+</option>
+            <option value="-">-</option>
+            <option value="*">*</option>
+            <option value="/">/</option>
+            <option value="sqrt">sqrt</option>
+            <option value="log">log</option>
+         </select>
+         <label for="operand2" id="op2label">b = </label>
+         <input type="text" id="operand2" size="10">
+         <input type="button" value="=" id="doCalc">&nbsp;<span id="result"></span>
+         <input type="checkbox" id="checkbox">
+         <label for="checkbox" id="cblabel">Округлить</label>
+
+     <p><label for="operand3" id ="op3label" hidden="true">n = </label>
+      <input type="text" id="operand3" size="10" hidden="true">
+        
+     </p>
+
+      <script>
+
+         let addition = false;
+         // вспомогательная функция для быстрого доступа к getElementById(id)
+         const getID = (id) => document.getElementById(id);
+
+         const doRound = (result) => {
+            var res = result.toFixed(3);
+            return res;
+         }
+
+         const addInput = () => {
+            getID('operand3').hidden = false;
+            getID('op3label').hidden = false;
+            getID('operand2').disabled = true;
+            getID('operand2').value = '';
+
+            addition = true;
+         }
+
+         const removeInput = () => {
+            getID('operand3').hidden = true;
+            getID('op3label').hidden = true;
+            getID('operand3').value = '';
+            // getID('addition').hidden = true;
+            addition = false;
+         }
+
+         const disableSecondInput = () => {
+            getID('operand2').disabled = true;
+            getID('operand2').value = '';
+         }
+
+         const ableSecondInput = () => {
+            getID('operand2').disabled = false;
+         }
+
+
+         // получаем элементы для использования в дальнейшем
+         const operator = getID('operator');
+
+
+
+         operator.onchange = function () {
+
+            if (operator.value == 'log') {
+               disableSecondInput();
+               addInput();
+            }
+
+            else if (operator.value == 'sqrt') {
+               disableSecondInput();
+               removeInput();
+            }
+
+            else if (operator.value != 'sqrt' || operator.value != 'log') {
+               ableSecondInput();
+               removeInput();
+            }
+
+
+         }
+
+         const operand1 = getID('operand1');
+         const operand2 = getID('operand2');
+
+         const doCalc = getID('doCalc');
+         const resultContainer = getID('result');
+
+
+         // обработчик события click
+         doCalc.onclick = function () {
+
+            const checkbox = getID('checkbox')
+
+
+            // переменные для результата и операндов
+            let result = null;
+            let a = +operand1.value;
+            let b = +operand2.value;
+            if (addition) {
+               const operand3 = getID('operand3');
+
+               if (+operand3.value <= 0) {
+                  a = 'афвода';
+               }
+            }
+
+            switch (operator.value) {
+               case '+': result = a + b; break;
+               case '-': result = a - b; break;
+               case '*': result = a * b; break;
+               case '/': result = a / b; break;
+               case 'sqrt': result = Math.sqrt(a); break;
+               case 'log': result = Math.log(a) / Math.log(+operand3.value); break;
+            };
+
+            // результат не будет числом (NaN), если не удастся преобразовать переменные к Number
+            if (isNaN(result)) {
+               result = 'Не удалось вычислить';
+               resultContainer.innerHTML = result;
+            }
+            else {
+               if (checkbox.checked == true) {
+                  if (result % 1 != 0) resultContainer.innerHTML = doRound(result);
+                  else { resultContainer.innerHTML = result; }
+               }
+               else if (checkbox.checked == false) {
+                  resultContainer.innerHTML = result;
+               }
+            }
+
+         }
+
+
+      </script>
+   </div>
+
+   <div id="secondTask">
+
+      <div id="cards">
+         <img src="images/visa.svg" alt="visa" id="visa" height="70px">
+         <img src="images/mc.svg" alt="mc" id="mc" height="50px">
+         <img src="images/maestro.svg" alt="maestro" id="maestro" height="50px">
+         <img src="images/jcb.svg" alt="jcb" id="jcb" height="50px">
+         <img src="images/mir.svg" alt="mir" id="mir" height="30px">
+      </div>
+     <div class="task">
+     <label for="cardNumberText">Введите номер карты для проверки: </label>
+      <input type="text" id="cardNumberText" value='4300111122223333'>
+
+      <input type="button" value="Проверить" id="cardCheck">
+     </div>
+     <div class="task">
+      <div id="resultCardCheck"></div>
+      <div id="resultLuhnCheck"></div>
+      </div>
+
+      <script>
+
+         // получаем элементы для использования в дальнейшем
+         const cardNumberText = getID('cardNumberText');
+         const cardCheck = getID('cardCheck');
+         const cards = getID('cards');
+         const resultCardCheck = getID('resultCardCheck');
+         const resultLuhnCheck = getID('resultLuhnCheck');
+
+         // определяем новый метод для String - проверка "содержит только цифры"
+         //
+         //
+         String.prototype.isNumber = function () { return /^\d+$/.test(this); }
+
+         // определяем обработчик input для очистки классов изображений карт
+         cardNumberText.oninput = function () {
+            clearClass();
+         }
+
+         cardNumberText.onfocus = function () {
+            cardNumberText.value = combineStringBySpaces(cardNumberText.value);
+         }
+
+        const splitStringBySpaces = (inputString) => 
+		{
+        const chunkSize = 4;
+        const chunks = [];
+
+        for (let i = 0; i < inputString.length; i += chunkSize) {
+            const chunk = inputString.slice(i, i + chunkSize);
+            chunks.push(chunk);
+        }
+
+        return chunks.join(" ");
+		}
+
+      const combineStringBySpaces = (inputString) => 
+		{
+        
+        return inputString.replaceAll(' ','');
+		}
+
+         // обработчик события click
+         cardCheck.onclick = function () {
+            cardNumberText.value = combineStringBySpaces(cardNumberText.value);
+            let result;
+            let card;
+            // очищаем класс (изображения затенены)
+            clearClass();
+
+            // если номер только из цифр и его длина = 16, формируем сообщение
+            if (!cardNumberText.value.isNumber() || cardNumberText.value.length != 16) {
+               result = 'Неверно введен номер карты';
+            }
+            else {
+               result = "BIN-код распознан";
+               // определяем вид карты
+               cardName = checkCardByNumber(cardNumberText.value);
+
+               if(cardName === 'wrong') result = 'Неверно введен номер карты';
+               else {
+                  card = getID(cardName);
+                  // устанавливаем для карты класс для нормального отображения
+                  card.className = 'hl';
+               }
+            }
+            // выводим результат проверки
+            resultCardCheck.innerHTML = result;
+
+			if(result == 'BIN-код распознан') resultLuhnCheck.innerHTML = checkLuhn(cardNumberText.value);
+         else resultLuhnCheck.innerHTML = '';
+			
+			if (cardNumberText.value.length === 16) {
+            cardNumberText.value = splitStringBySpaces(cardNumberText.value)
+        }
+		
+		
+         }
+         // функция для проверки номера карты и определения ее вида
+         const checkCardByNumber = function (cardNumber) {
+            // сначала проверяем только первый символ
+            if (+cardNumber.slice(0, 1) == 4) {
+               // visa
+               return 'visa';
+            }
+            else if ((+cardNumber.slice(0, 4) >= 2221 & +cardNumber.slice(0, 4) <= 2720) | (+cardNumber.slice(0, 2) >= 51 & +cardNumber.slice(0, 2) <= 55)) {
+               // mastercard
+               return 'mc';
+            }
+            else if ((+cardNumber.slice(0, 2) >= 56 & +cardNumber.slice(0, 2) <= 58) | (+cardNumber.slice(0, 1) == 6) | (+cardNumber.slice(0, 2) == 50)) {
+               // maestro
+               return 'maestro';
+            }
+            else if (+cardNumber.slice(0, 4) >= 3528 & +cardNumber.slice(0, 4) <= 3589) {
+               // jcb
+               return 'jcb';
+            }
+            else if (+cardNumber.slice(0, 3) == 220) {
+               // mir
+               return 'mir';
+            }
+            else
+               return 'wrong';
+         }
+
+         const checkLuhn = function (cardNumber) {
+            let sum = 0;
+            let local = 0;
+            for (let index = 0; index < cardNumber.length; index++) {
+               if (index % 2 == 0) {
+                  local = +cardNumber[index] * 2;
+                  if (local > 9) local -= 9;
+               }
+               else {
+                  local = +cardNumber[index];
+               }
+               sum += local;
+            }
+
+
+
+            if (sum % 10 == 0) {
+               return 'Сумма по Лунну: ' + sum + '. Номер корректен';
+            }
+            else {
+               return "Сумма по Лунну: " + sum + '. Номер некорректен';
+            }
+         }
+
+         // функция для очистки класса (вызываем при изменении в поле номера карты)
+         const clearClass = function () {
+            const cardImage = document.querySelector('#cards img.hl');
+            // есть ли такой класс у картинки? если да, выключаем
+            if (cardImage) cardImage.classList.toggle('hl');
+         }
+      </script>
+
+   </div>
+
+   <div id="thirdFourthTask">
+         <p id="clockMoscow"></p>
+         <p id="clockTokyo"></p>
+         <p id="clockLondon"></p>
+
+      <script>
+
+         Number.prototype.isNot24 = function () { 
+            if (this >= 24) 
+               return this-24;
+            else if(this < 0) 
+               return this+24;
+            else
+               return this;
+         }
+
+         function to2Digits(num) {
+            return String(num).padStart(2, '0');
+         }
+
+         const clockMoscow = getID('clockMoscow');
+         const clockTokyo = getID('clockTokyo');
+         const clockLondon = getID('clockLondon');
+         let curDate;
+         let timerId = setInterval(() => {
+            curDate = new Date();
+            clockMoscow.innerHTML = "Moscow time: " + to2Digits(curDate.getHours()) + ":" + to2Digits(curDate.getMinutes()) + ":" + to2Digits(curDate.getSeconds());
+            clockTokyo.innerHTML = "Tokyo time: " + to2Digits((curDate.getHours() + 6).isNot24()) + ":" + to2Digits(curDate.getMinutes()) + ":" + to2Digits(curDate.getSeconds());
+            clockLondon.innerHTML = "London time: " + to2Digits((curDate.getHours() - 2).isNot24()) + ":" + to2Digits(curDate.getMinutes()) + ":" + to2Digits(curDate.getSeconds());
+         }, 1000)
+      </script>
+   </div>
+
+   <div id="fifthTask">
+     <div>Таймер</div>
+     <div>
+         <input type="button" value="Stop" id="timerStop">
+         <span id="timerRes"></span>
+         <input type="button" value="Start" id="timerStart">
+     </div>
+
+      <script>
+         
+         const TimerStop = getID("timerStop");
+         const TimerStart = getID("timerStart");
+         const TimerRes = getID("timerRes");
+
+         let time = [0, 0, 0, 0];
+         let timeMax = [24, 60, 60, 100];
+         let timePrint = [0,0,0,0];
+         let Timer;
+
+         Number.prototype.is1000 = function () {
+            if (this <= 0)
+               return this+1000;
+            else
+               return this;
+         }
+
+         startTimer = function (time, timeMax, timePrint) {
+            let TimeOut = setInterval(() => {
+               
+               time[3] += 1;
+               if(time[3] == timeMax[3]) {
+                  time[3] = 0;
+                  time[2]++;
+               }
+               else if(time[2] == timeMax[2]) {
+                  time[2] = 0;
+                  time[1] ++;
+               }
+               else if(time[1] == timeMax[1]) {
+                  time[1] = 0;
+                  time[0] ++;
+               }
+
+               for(let i = 0; i < 4; i++)
+                  timePrint[i] = to2Digits(time[i]);
+
+               TimerRes.innerHTML = timePrint.join(':');
+            }, 10)
+            return TimeOut;
+         }
+
+         stopTimer = function (Timer) {
+            clearInterval(Timer);
+         }
+
+         TimerStart.onclick = function () {
+            Timer = startTimer(time, timeMax, timePrint);
+         }
+
+         TimerStop.onclick = function () {
+            stopTimer(Timer);
+         }
+         
+      </script>
+   </div>
+
+   <div id="sixthTask">
+      <div class="task">
+        <label for="input">Введите дату для проверки: </label>
+               <input type="text" id="input" value="11-03-2019 10:15:01">
+         <input type="button" value="Проверить" id="checkDate">
+      </div>
+     <div class="sixthResult"> 
+      <p id="format"></p>
+      <p id="data"></p>
+     </div>
+
+      <script>
+         const input = getID('input');
+         const format = getID('format');
+         const data = getID('data');
+         const checkDate = getID('checkDate');
+
+         const isValidFormat = (value) => {
+            const pattern = /^(\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2})$/;
+            return pattern.test(value);
+         }
+
+         const isLeap = (year) => {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+         }
+
+         const isValidData = (value) => {
+            const datetime = value.split(' ');
+            const date = datetime[0].split('-').map(Number);
+            const time = datetime[1].split(':').map(Number);
+            // date[0] - day / date[1] - month / date[2] - year
+            // time[0] - hour / time[1] - minute / time[2] - sec
+
+            if (
+               isNaN(date[0]) || isNaN(date[1]) || isNaN(date[2]) || isNaN(time[0]) || isNaN(time[1]) || isNaN(time[2]) ||
+               date[0] < 1 || date[0] > 31 || date[1] < 1 || date[1] > 12 ||
+               time[0] < 0 || time[0] > 23 || time[1] < 0 || time[1] > 59 || time[2] < 0 || time[2] > 59
+            ) return false;
+
+            if (
+               (date[1] === 2 && date[0] === 29 && !isLeap(date[2])) ||
+               (date[1] === 2 && date[0] > 29) ||
+               ((date[1] === 4 || date[1] === 6 || date[1] === 9 || date[1] === 11) && date[0] > 30)
+            ) return false;
+
+            return true;
+         }
+
+         checkDate.onclick = () => {
+            if (isValidFormat(input.value)) {
+               format.textContent = 'Формат корректен'
+            } else {
+               format.textContent = 'Формат некорректен'
+            }
+
+            if (isValidData(input.value)) {
+               data.textContent = 'и данные корректны'
+            } else {
+               data.textContent = 'и данные не проверяются'
+            }
+         }
+
+
+      </script>
+
+   </div>
+
+   <div id="seventhTask">
+      <div class="task">
+        <label for "pass">Введите пароль для проверки: </label>
+            <input type="text" id="pass" value="She*26^0p%?1(">
+      <input type="button" value="Проверить" id="checkPass">
+      </div>
+     
+      <div>
+        <ul>
+         <li id="passRes"></li>
+         <li id="forLength"></li>
+         <li id="forSymbols"></li>
+         <li id="forUpper"></li>
+         <li id="forSpecLength"></li>
+         <li id="forRepeat"></li>
+        </ul>
+      </div>
+
+      <script>
+         const pass = getID("pass");
+         const passRes = getID("passRes");
+         const checkPass = getID("checkPass");
+
+         const forLength = getID("forLength");
+         const forSymbols = getID("forSymbols");
+         const forUpper = getID("forUpper");
+         const forSpecLength = getID("forSpecLength");
+         const forRepeat = getID("forRepeat");
+
+         const checkLength = (value) => {
+            if (value.length < 5) return 0
+            else if (value.length > 4 && value.length < 10) return 1
+            else if (value.length > 9 && value.length < 12) return 2
+            else if (value.length > 11) return 3
+         }
+
+         const checkSymbols = (value) => {
+            const numOk = /\d/.test(value);
+            const letOk = /[a-zA-Z]/.test(value);
+            const specOk = /[~!#$%^&*()_\-+=?/,.[\]{}<>|\\]/.test(value);
+            let res = 0;
+            
+            if (numOk) res++;
+            if (letOk) res++;
+            if (specOk) res++;
+
+            if(res == 3) return 2;
+            else if (res == 2) return 1;
+            else return 0;
+            
+         }
+
+         const checkUpper = (value) => {
+            let res = 0;
+            if(/[A-Z]/g.test(value)) res++;
+            if(/[a-z]/g.test(value)) res++;
+
+            if(res === 2) return 1;
+            else return 0;
+            
+         }
+
+         const checkSpecLength = (value) => {
+            const specSet = new Set("~!#$%^&*()_-+=?/,.[]{}<>|");
+            const amount = value.length;
+            let count = 0;
+
+            for(const i of value) {
+               if (specSet.has(i)) count++;
+            }
+
+            if (((count / amount ) * 100) > 30) return 2;
+            else return 0;
+         }
+
+         const checkRepeat = (value) => {
+            const chars = value.split('');
+
+            let countNum = 0;
+            let countLet = 0;
+
+            for (let i = 0; i < chars.length; i++) {
+               
+               if(/[0-9]/.test(chars[i])) {
+                  countLet = 0;
+                  countNum++;
+                  
+                  if(countNum > 2) return 0;
+               }
+               else if(/[a-zA-Z]/.test(chars[i])) {
+                  countNum = 0;
+                  countLet++;
+                  
+                  if(countLet > 2) return 0;
+               }
+               else {
+                  countNum = 0;
+                  countLet = 0;
+                  
+               }
+            }
+
+            return 2;
+         }
+
+         checkPass.onclick = () => {
+            let res = 0;
+            const password = pass.value;
+            res = checkLength(password);
+            forLength.innerHTML = ('длина === ' + res + ' pts');
+            if (res === 0) {
+               passRes.textContent = 'итоговая сложность пароля === 0 pts';
+               forSymbols.innerHTML = ('разнообразие символов === 0 pts');
+               forUpper.innerHTML = ('регистр букв === 0 pts');
+               forSpecLength.innerHTML = ('30 % пароля - спец. символы === 0 pts');
+               forRepeat.innerHTML = ('повторы букв или цифр === 0 pts');
+            }
+            else {
+               res += checkSymbols(password);
+               forSymbols.innerHTML = ('разнообразие символов === ' + checkSymbols(password) + ' pts');
+               res += checkUpper(password);
+               forUpper.innerHTML = ('регистр букв === ' + checkUpper(password) + ' pts');
+               res += checkSpecLength(password);
+               forSpecLength.innerHTML = ('30 % пароля - спец. символы === ' + checkSpecLength(password) + ' pts');
+               res += checkRepeat(password);
+               forRepeat.innerHTML = ('повторы букв или цифр === ' + checkRepeat(password) + ' pts');
+
+               passRes.textContent = 'итоговая сложность пароля === ' + res + ' pts';
+            }
+         }
+      </script>
+   </div>
+  </div>
+  <p class="media"><<<Расширьте размер окна>>></p>
+</body>
+
+</html>

@@ -1,0 +1,150 @@
+div {
+  margin: 10px;
+  padding: 10px
+}
+
+body,input,select {
+  font-family: Geneva, Arial, Helvetica, sans-serif;
+  font-size: 1.1em;
+}
+
+
+#cards {
+display: flex;
+gap: 50px;
+align-items: center;
+justify-content: center;
+}
+
+#cards img {
+  opacity: 0.2;
+  vertical-align: middle;
+}
+
+#cards img.hl {
+  opacity: 1
+}
+
+.container {
+display: grid;
+justify-content: center;
+align-content: start;
+grid-template-columns: repeat(2, 400px);
+grid-template-rows: 5;
+gap: 10px;
+
+padding: 10px;
+max-width: 100%;
+max-height: 100%;
+
+position: absolute;
+left: 0;
+right: 0;
+top: 0;
+bottom: 0;
+margin: 0;
+overflow: auto;
+}
+
+#firstTask {
+grid-row: 1;
+grid-column: 1 / span 2;
+}
+
+
+#secondTask {
+grid-row: 2;
+grid-column: 1 / span 2;
+}
+
+#thirdFourthTask {
+grid-row: 3;
+grid-column: 1;
+}
+
+#thirdFourthTask p{
+display: flex;
+gap: 10px;
+align-items: center;
+justify-content: center;
+}
+
+#fifthTask {
+grid-row: 3;
+grid-column: 2;
+
+}
+
+#fifthTask div {
+display: flex;
+gap: 10px;
+align-items: center;
+justify-content: center;
+}
+
+#sixthTask {
+grid-row: 4;
+grid-column: 1 / span 2;
+}
+.sixthResult {
+display: flex;
+gap: 5px;
+align-items: center;
+justify-content: center;
+}
+
+#seventhTask {
+display: grid;
+grid-template-columns: 1;
+grid-template-rows: 2;
+grid-row: 5;
+grid-column: 1 / span 2;
+}
+
+.task {
+display: flex;
+grid-row: 1;
+grid-column: span 1;
+align-items: center;
+justify-content: center;
+gap: 10px;
+}
+
+.media {
+  display: none;
+  font-size: 3rem;
+  font-weight: bold;
+  font-family: "Gill Sans", sans-serif;
+  text-align: center;
+}
+
+#firstTask, #secondTask, #thirdFourthTask, #fifthTask, #sixthTask, #seventhTask{
+  background-color: #f1f2f6;
+  border-bottom: 7px solid #ced6e0;
+  border-right: 7px solid #ced6e0;
+  border-top: 7px solid #f1f2f6;
+  border-left: 7px solid #f1f2f6;
+}
+
+@media (max-width: 850px) or (max-height: 600px) {
+  #firstTask, #secondTask, #thirdFourthTask, #fifthTask, #sixthTask, #seventhTask{
+    display: none;
+  }
+  .media {
+    display:inline;
+  }
+
+  body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+  }
+}
